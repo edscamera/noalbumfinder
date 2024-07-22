@@ -21,14 +21,9 @@ const lastfm = async (options) => {
 $("#form_submit").addEventListener("click", (e) => {
     const username = $("#form_username").value;
     const api_key = $("#form_api_key").value;
-    if (!username) {
-        alert("Please enter a username");
-        return;
-    }
-    if (!api_key) {
-        alert("Please enter an API key");
-        return;
-    }
+
+    if (!username) return alert("Please enter a username!");
+    if (!api_key) return alert("Please enter an API key!");
 
     doSearch(username, api_key);
 });
@@ -40,7 +35,13 @@ const doSearch = async (username, api_key) => {
         const results = $("#results");
         results.innerHTML = "";
 
-        const html = tracks.map(track => `<li><input type="checkbox" /> <a target="_blank" href="${track}">${track}</a></li>`).join("");
+        const html = tracks.sort().map(track => {
+            const song = track.split("library/music/")[1].split("/");
+            const artist = decodeURI(song[0].replace(/\+/g, " "));
+            const title = decodeURI(song[2].replace(/\+/g, " "));
+
+            return `<li><input type="checkbox" /> <a target="_blank" href="${track}">${artist} - ${title}</a></li>`
+        }).join("");
         results.innerHTML = html;
 
         $("#status").innerHTML = `${new Date().toString()}<br>Tracks (${tracks.length}):`;
@@ -69,7 +70,7 @@ const doSearch = async (username, api_key) => {
                     return;
                 }
                 const filteredTracks = data.recenttracks.track.filter(track => !track.album["#text"]);
-                tracks = tracks.concat(filteredTracks.map(x => x.url));
+                tracks = tracks.concat(filteredTracks.map(x => `https://last.fm/user/${username}/library${x.url.substring(19)}`));
                 loaded++;
                 $("#status").innerHTML = `Loading... ${Math.round(loaded / pages * 100)}%`;
                 if (loaded === pages) done([...new Set(tracks)]);

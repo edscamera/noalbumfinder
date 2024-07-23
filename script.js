@@ -54,17 +54,22 @@ const doSearch = async (username, api_key) => {
         method: "user.getinfo",
         api_key: api_key,
     }).then(data => {
-        const pages = Math.ceil(data.user.playcount / 200);
+        const checked = $("#form_check_all").checked;
+        const limit = 200;
+        const pages = Math.ceil(data.user.playcount / limit);
         
+        const startPage = checked ? 1 : Math.max(1, Math.floor(parseInt($("#form_start").value) / limit) + 1);
+        const endPage = checked ? pages : Math.min(pages, Math.floor(parseInt($("#form_end").value) / limit) + 1);
+
         const promises = [];
-        for (let i = 1; i <= pages; i++) {
+        for (let i = startPage; i <= endPage; i++) {
             const resFunc = data => {
                 if (!data || !data.recenttracks || !data.recenttracks.track || !Array.isArray(data.recenttracks.track)) {
                     promises.push(lastfm({
                         user: username,
                         api_key: api_key,
                         method: "user.getrecenttracks",
-                        limit: 200,
+                        limit: limit,
                         page: i,
                     }).then(resFunc).catch(error => catchError(error)));
                     return;
@@ -72,8 +77,8 @@ const doSearch = async (username, api_key) => {
                 const filteredTracks = data.recenttracks.track.filter(track => !track.album["#text"]);
                 tracks = tracks.concat(filteredTracks.map(x => `https://last.fm/user/${username}/library${x.url.substring(19)}`));
                 loaded++;
-                $("#status").innerHTML = `Loading... ${Math.round(loaded / pages * 100)}%`;
-                if (loaded === pages) done([...new Set(tracks)]);
+                $("#status").innerHTML = `Loading... ${Math.round(loaded / endPage * 100)}%`;
+                if (loaded === endPage) done([...new Set(tracks)]);
             };
             resFunc();
         }
@@ -85,3 +90,8 @@ const catchError = (e) => {
     console.error(e);
     errored = true;
 }
+
+($("#form_check_all").oninput = () => {
+    const checked = $("#form_check_all").checked;
+    $$(".check_all_toggle").forEach(elm => elm.style.display = checked ? 'none' : 'block');
+})();

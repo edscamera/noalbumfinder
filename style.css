@@ -15,3 +15,13 @@ body {
     font-weight: bold;
     text-align: right;
 }
+
+.ed-form :nth-child(even) {
+    text-align: left;
+}
+
+.check_all_toggle {
+    display: none;
+}
+
+p, h1 { margin: 0; }

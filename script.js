@@ -77,8 +77,8 @@ const doSearch = async (username, api_key) => {
                 const filteredTracks = data.recenttracks.track.filter(track => !track.album["#text"]);
                 tracks = tracks.concat(filteredTracks.map(x => `https://last.fm/user/${username}/library${x.url.substring(19)}`));
                 loaded++;
-                $("#status").innerHTML = `Loading... ${Math.round(loaded / endPage * 100)}%`;
-                if (loaded === endPage) done([...new Set(tracks)]);
+                $("#status").innerHTML = `Loading... ${Math.round(loaded / (endPage - startPage) * 100)}%`;
+                if (loaded >= (endPage - startPage + 1)) done([...new Set(tracks)]);
             };
             resFunc();
         }

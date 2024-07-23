@@ -36,7 +36,7 @@ const doSearch = async (username, api_key) => {
         results.innerHTML = "";
 
         const html = tracks.sort().map(track => {
-            const song = track.split("library/music/")[1].split("/");
+            const song = track.replace(/\+noredirect\//).split("library/music/")[1].split("/");
             const artist = decodeURI(song[0].replace(/\+/g, " "));
             const title = decodeURI(song[2].replace(/\+/g, " "));
 

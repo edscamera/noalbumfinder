@@ -1,0 +1,14 @@
+@for (report of reportService.reports; track $index) {
+  <div class="border-red-600">
+    {{ report.username }}:
+    {{ report.scrobbles.recenttracks.track.length }} scrobbles found
+  </div>
+}
+
+<div class="flex gap-2">
+  <input type="text" placeholder="last.fm username" pInputText #username />
+  <p-button
+    icon="pi pi-search"
+    (click)="createReport(username.value)"
+  ></p-button>
+</div>
